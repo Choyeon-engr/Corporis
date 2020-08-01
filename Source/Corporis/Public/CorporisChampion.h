@@ -5,6 +5,7 @@
 #include "Corporis.h"
 #include "GameFramework/Character.h"
 #include "CorporisAnimInstance.h"
+#include "CorporisPlayerController.h"
 #include "CorporisChampion.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
@@ -53,6 +54,9 @@ private:
     
     UPROPERTY()
     UCorporisAnimInstance* CorporisAnim;
+    
+    UPROPERTY()
+    ACorporisPlayerController* CorporisPlayerController;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
     class UPawnNoiseEmitterComponent* NoiseEmitter;

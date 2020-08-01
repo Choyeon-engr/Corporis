@@ -29,6 +29,9 @@ void ACorporisChampion::BeginPlay()
 {
     Super::BeginPlay();
     
+    CorporisPlayerController = Cast<ACorporisPlayerController>(GetWorld()->GetFirstPlayerController());
+    
+    CorporisPlayerController->GetHUDWidget()->BindChampionStat(this);
 }
 
 // Called every frame
@@ -81,8 +84,6 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
     FHitResult HitResult;
     FVector ImpulseDirection;
     DamageEvent.GetBestHitInfo(this, DamageCauser, HitResult, ImpulseDirection);
-    
-    APlayerController* CorporisPlayerController = GetWorld()->GetFirstPlayerController();
     
     UGameplayStatics::SpawnSoundAtLocation(this, ImpactBodySoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
     
