@@ -26,4 +26,7 @@ private:
     
     UPROPERTY()
     class UProgressBar* HealthBar;
+    
+    UPROPERTY()
+    class UTextBlock* BulletQuantity;
 };
