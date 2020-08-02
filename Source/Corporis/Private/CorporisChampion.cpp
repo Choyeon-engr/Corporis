@@ -6,7 +6,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
-ACorporisChampion::ACorporisChampion() : ChampionHP(8000), LastFootstep(0.0f), DeadTimer(0.03f)
+ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -22,6 +22,10 @@ ACorporisChampion::ACorporisChampion() : ChampionHP(8000), LastFootstep(0.0f), D
     static ConstructorHelpers::FObjectFinder<USoundWave> IMPACT_BODY(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/Rifle_ImpactBody04"));
     if (IMPACT_BODY.Succeeded())
         ImpactBodySoundWave = IMPACT_BODY.Object;
+    
+    static ConstructorHelpers::FObjectFinder<USoundWave> WEAPON_RELOAD(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/Rifle_Reload03"));
+    if (WEAPON_RELOAD.Succeeded())
+        WeaponReloadSoundWave = WEAPON_RELOAD.Object;
 }
 
 // Called when the game starts or when spawned
@@ -64,6 +68,11 @@ void ACorporisChampion::PostInitializeComponents()
         GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
             Destroy();
         }), DeadTimer, false);
+    });
+    
+    CorporisAnim->ReloadCompleted.AddLambda([this]() -> void {
+        BulletQuantity = 8;
+        BulletQuantityChanged.Broadcast();
     });
 }
 
@@ -131,15 +140,26 @@ bool ACorporisChampion::ChampionIsDead() const
 
 float ACorporisChampion::GetHPRatio()
 {
-    return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 8000.0f));
+    return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 800.0f));
 }
 
 void ACorporisChampion::Attack()
 {
+    if (BulletQuantity < 0) { return; }
+    
     FHitResult HitResult;
     FCollisionQueryParams Params(NAME_None, false, this);
     bool bResult = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 3000.0f, ECollisionChannel::ECC_GameTraceChannel1, Params);
     auto Target = Cast<ACorporisMinion>(HitResult.Actor);
+    
+    if (!BulletQuantity--)
+    {
+        CorporisAnim->PlayReloadMontage();
+        UGameplayStatics::SpawnSoundAtLocation(this, WeaponReloadSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
+        return;
+    }
+    
+    BulletQuantityChanged.Broadcast();
     
     UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
     MakeNoise(1.0, this, FVector::ZeroVector);

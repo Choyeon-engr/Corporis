@@ -9,6 +9,7 @@
 #include "CorporisChampion.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FBulletQuantityChangedDelegate);
 
 UCLASS()
 class CORPORIS_API ACorporisChampion : public ACharacter
@@ -37,8 +38,10 @@ public:
     
     bool ChampionIsDead() const;
     float GetHPRatio();
+    int32 GetBulletQuantity() { return BulletQuantity; };
     
     FOnHPChangedDelegate OnHPChanged;
+    FBulletQuantityChangedDelegate BulletQuantityChanged;
     
 private:
     void Attack();
@@ -47,6 +50,7 @@ private:
 
 private:
     int32 ChampionHP;
+    int32 BulletQuantity;
     float LastFootstep;
     float DeadTimer;
     
@@ -66,6 +70,9 @@ private:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
     class USoundWave* ImpactBodySoundWave;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
+    class USoundWave* WeaponReloadSoundWave;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (AllowPrivateAccess = true))
     TSubclassOf<UCameraShake> CameraShake;
