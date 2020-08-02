@@ -7,7 +7,7 @@
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
-ACorporisMinion::ACorporisMinion() : MinionHP(800), bOnSeePawn(false), bOnHearNoise(false), DeadTimer(1.0f), NextAttackTime(0)
+ACorporisMinion::ACorporisMinion() : MinionHP(500), bOnSeePawn(false), bOnHearNoise(false), DeadTimer(1.0f), NextAttackTime(0)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
