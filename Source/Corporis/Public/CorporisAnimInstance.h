@@ -8,6 +8,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FCEnablePhysicsDelegate);
 DECLARE_MULTICAST_DELEGATE(FMEnablePhysicsDelegate);
+DECLARE_MULTICAST_DELEGATE(FReloadCompletedDelegate);
 
 /**
  *
@@ -28,8 +29,11 @@ public:
     void SetIsSit(bool IsSit) { bIsSit = IsSit; }
     void SetIsDamaged(bool IsDamaged) { bIsDamaged = IsDamaged; }
     
+    void PlayReloadMontage();
+    
     FCEnablePhysicsDelegate CEnablePhysics;
     FMEnablePhysicsDelegate MEnablePhysics;
+    FReloadCompletedDelegate ReloadCompleted;
     
 private:
     UFUNCTION()
@@ -43,6 +47,9 @@ private:
     
     UFUNCTION()
     void AnimNotify_MFinishHitReact() { bIsDamaged = false; }
+    
+    UFUNCTION()
+    void AnimNotify_ReloadCompleted() { ReloadCompleted.Broadcast(); }
     
 private:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
@@ -59,4 +66,7 @@ private:
     
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Status, Meta = (AllowPrivateAccess = true))
     bool bIsDamaged;
+    
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Reload, Meta = (AllowPrivateAccess = true))
+    UAnimMontage* ReloadMontage;
 };
