@@ -45,8 +45,6 @@ public:
     
 private:
     void Attack();
-    void Sit() { CorporisAnim->SetIsSit(true); }
-    void Stand() { CorporisAnim->SetIsSit(false); }
 
 private:
     int32 ChampionHP;

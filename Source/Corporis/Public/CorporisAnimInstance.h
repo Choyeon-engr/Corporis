@@ -26,7 +26,6 @@ public:
     
     void SetIsDead(bool IsDead) { bIsDead = IsDead; }
     void SetAttackAngle(int AttackAngle) { iAttackAngle = AttackAngle; }
-    void SetIsSit(bool IsSit) { bIsSit = IsSit; }
     void SetIsDamaged(bool IsDamaged) { bIsDamaged = IsDamaged; }
     
     void PlayReloadMontage();
@@ -60,9 +59,6 @@ private:
     
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Status, Meta = (AllowPrivateAccess = true))
     int iAttackAngle;
-    
-    UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Status, Meta = (AllowPrivateAccess = true))
-    bool bIsSit;
     
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Status, Meta = (AllowPrivateAccess = true))
     bool bIsDamaged;

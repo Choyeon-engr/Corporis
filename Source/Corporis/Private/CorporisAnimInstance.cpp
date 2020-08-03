@@ -3,7 +3,7 @@
 
 #include "CorporisAnimInstance.h"
 
-UCorporisAnimInstance::UCorporisAnimInstance() : CurrentPawnSpeed(0.0f), bIsDead(false), iAttackAngle(3), bIsSit(false), bIsDamaged(false)
+UCorporisAnimInstance::UCorporisAnimInstance() : CurrentPawnSpeed(0.0f), bIsDead(false), iAttackAngle(3), bIsDamaged(false)
 {
     static ConstructorHelpers::FObjectFinder<UAnimMontage> RELOAD_MONTAGE(TEXT("/Game/ParagonLtBelica/Characters/Heroes/Belica/Animations/Reload"));
     if (RELOAD_MONTAGE.Succeeded())
