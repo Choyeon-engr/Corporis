@@ -6,7 +6,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
-ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f)
+ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -68,11 +68,6 @@ void ACorporisChampion::PostInitializeComponents()
         GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
             Destroy();
         }), DeadTimer, false);
-    });
-    
-    CorporisAnim->ReloadCompleted.AddLambda([this]() -> void {
-        BulletQuantity = 8;
-        BulletQuantityChanged.Broadcast();
     });
 }
 
@@ -154,6 +149,12 @@ void ACorporisChampion::Attack()
     {
         CorporisAnim->PlayReloadMontage();
         UGameplayStatics::SpawnSoundAtLocation(this, WeaponReloadSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
+        
+        GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
+            BulletQuantity = 8;
+            BulletQuantityChanged.Broadcast();
+        }), ReloadTimer, false);
+        
         return;
     }
     

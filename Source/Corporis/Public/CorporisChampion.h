@@ -53,8 +53,10 @@ private:
     int32 BulletQuantity;
     float LastFootstep;
     float DeadTimer;
+    float ReloadTimer;
     
     FTimerHandle DeadTimerHandle = { };
+    FTimerHandle ReloadTimerHandle = { };
     
     UPROPERTY()
     UCorporisAnimInstance* CorporisAnim;
