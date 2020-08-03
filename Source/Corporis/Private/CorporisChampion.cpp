@@ -82,8 +82,6 @@ void ACorporisChampion::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
     PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &ACorporisChampion::Attack);
-    PlayerInputComponent->BindAction(TEXT("Sit"), EInputEvent::IE_Pressed, this, &ACorporisChampion::Sit);
-    PlayerInputComponent->BindAction(TEXT("NotSit"), EInputEvent::IE_Released, this, &ACorporisChampion::Stand);
 }
 
 float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
