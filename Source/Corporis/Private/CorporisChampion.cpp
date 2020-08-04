@@ -26,6 +26,10 @@ ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), Las
     static ConstructorHelpers::FObjectFinder<USoundWave> WEAPON_RELOAD(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/Rifle_Reload03"));
     if (WEAPON_RELOAD.Succeeded())
         WeaponReloadSoundWave = WEAPON_RELOAD.Object;
+    
+    static ConstructorHelpers::FObjectFinder<UParticleSystem> WEAPON_MUZZLE(TEXT("/Game/ParagonLtBelica/FX/Particles/Belica/Abilities/Primary/FX/P_BelicaMuzzle"));
+    if (WEAPON_MUZZLE.Succeeded())
+        MuzzleParticleSystem = WEAPON_MUZZLE.Object;
 }
 
 // Called when the game starts or when spawned
@@ -36,6 +40,8 @@ void ACorporisChampion::BeginPlay()
     CorporisPlayerController = Cast<ACorporisPlayerController>(GetWorld()->GetFirstPlayerController());
     
     CorporisPlayerController->GetHUDWidget()->BindChampionStat(this);
+    
+    UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("weapon"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
 }
 
 // Called every frame
@@ -159,6 +165,8 @@ void ACorporisChampion::Attack()
     }
     
     BulletQuantityChanged.Broadcast();
+    
+    UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("CorporisPistol"))), GetActorRotation());
     
     UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
     MakeNoise(1.0, this, FVector::ZeroVector);

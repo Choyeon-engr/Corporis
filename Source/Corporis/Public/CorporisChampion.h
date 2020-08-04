@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CorporisAnimInstance.h"
 #include "CorporisPlayerController.h"
+#include "ParticleDefinitions.h"
 #include "CorporisChampion.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
@@ -76,4 +77,7 @@ private:
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (AllowPrivateAccess = true))
     TSubclassOf<UCameraShake> CameraShake;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, Meta = (AllowPrivateAccess = true))
+    UParticleSystem* MuzzleParticleSystem;
 };
