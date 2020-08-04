@@ -5,6 +5,7 @@
 #include "Corporis.h"
 #include "GameFramework/Character.h"
 #include "CorporisAnimInstance.h"
+#include "ParticleDefinitions.h"
 #include "CorporisMinion.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSeePawnDelegate, APawn*, Pawn);
@@ -75,4 +76,10 @@ private:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
     class USoundWave* WeaponFireSoundWave;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, Meta = (AllowPrivateAccess = true))
+    UParticleSystem* MuzzleParticleSystem;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, Meta = (AllowPrivateAccess = true))
+    UParticleSystem* DeathParticleSystem;
 };

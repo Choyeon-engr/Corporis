@@ -30,6 +30,14 @@ ACorporisMinion::ACorporisMinion() : MinionHP(500), bOnSeePawn(false), bOnHearNo
     static ConstructorHelpers::FObjectFinder<USoundWave> WEAPON_FIRE(TEXT("/Game/SciFiWeapLight/Sound/Rifle/Wavs/Rifle_Fire06"));
     if (WEAPON_FIRE.Succeeded())
         WeaponFireSoundWave = WEAPON_FIRE.Object;
+    
+    static ConstructorHelpers::FObjectFinder<UParticleSystem> WEAPON_MUZZLE(TEXT("/Game/ParagonMinions/FX/Particles/Minions/Shared/P_Minion_Seige_Muzzle"));
+    if (WEAPON_MUZZLE.Succeeded())
+        MuzzleParticleSystem = WEAPON_MUZZLE.Object;
+    
+    static ConstructorHelpers::FObjectFinder<UParticleSystem> MINION_DEATH(TEXT("/Game/ParagonMinions/FX/Particles/Minions/Minion_Siege/FX/Death/P_SiegeMinion_Chunks"));
+    if (MINION_DEATH.Succeeded())
+        DeathParticleSystem = MINION_DEATH.Object;
 }
 
 // Called when the game starts or when spawned
@@ -37,6 +45,9 @@ void ACorporisMinion::BeginPlay()
 {
     Super::BeginPlay();
     
+    UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("weapon_r"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
+    
+    UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("spine_01"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
 }
 
 // Called every frame
@@ -53,6 +64,7 @@ void ACorporisMinion::PostInitializeComponents()
     CorporisAnim = Cast<UCorporisAnimInstance>(GetMesh()->GetAnimInstance());
     
     CorporisAnim->MEnablePhysics.AddLambda([this]() -> void {
+        UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("spine_01"))), GetActorRotation());
         GetMesh()->SetSimulatePhysics(true);
         
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -150,6 +162,8 @@ void ACorporisMinion::Attack()
             
             else
                 CorporisAnim->SetAttackAngle((int)EAngle::MID);
+            
+            UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("Muzzle_Front"))), GetActorRotation());
             
             UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
             
