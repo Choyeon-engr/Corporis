@@ -10,7 +10,8 @@ void UCorporisHUDWidget::BindChampionStat(ACorporisChampion* ChampionStat)
 {
     CurrentChampionStat = ChampionStat;
     ChampionStat->OnHPChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
-    ChampionStat->BulletQuantityChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
+    ChampionStat->OnBulletQuantityChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
+    ChampionStat->OnTotalScoreChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
 }
 
 void UCorporisHUDWidget::NativeConstruct()
@@ -19,10 +20,12 @@ void UCorporisHUDWidget::NativeConstruct()
     
     HealthBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PB_HealthBar")));
     BulletQuantity = Cast<UTextBlock>(GetWidgetFromName(TEXT("TXT_BulletQuantity")));
+    CurrentScore = Cast<UTextBlock>(GetWidgetFromName(TEXT("TXT_CurrentScore")));
 }
 
 void UCorporisHUDWidget::UpdateChampionStat()
 {
     HealthBar->SetPercent(CurrentChampionStat->GetHPRatio());
     BulletQuantity->SetText(FText::FromString(FString::FromInt(CurrentChampionStat->GetBulletQuantity())));
+    CurrentScore->SetText(FText::FromString(FString::FromInt(CurrentChampionStat->GetTotalScore())));
 }

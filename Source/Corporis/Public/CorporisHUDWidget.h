@@ -29,4 +29,10 @@ private:
     
     UPROPERTY()
     class UTextBlock* BulletQuantity;
+    
+    UPROPERTY()
+    class UTextBlock* CurrentScore;
+    
+    UPROPERTY()
+    class UTextBlock* HighScore;
 };
