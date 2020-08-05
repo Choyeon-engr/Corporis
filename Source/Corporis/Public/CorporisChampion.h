@@ -11,7 +11,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnBulletQuantityChangedDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnTotalScoreChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnScoreChangedDelegate);
 
 UCLASS()
 class CORPORIS_API ACorporisChampion : public ACharacter
@@ -41,12 +41,13 @@ public:
     bool ChampionIsDead() const;
     float GetHPRatio();
     int32 GetBulletQuantity() const { return BulletQuantity; }
-    int32 GetTotalScore() const { return TotalScore; }
-    void AddScore();
+    int32 GetCurrentScore() const { return CurrentScore; }
+    int32 GetHighScore() const { return HighScore; }
+    void AddCurrentScore();
     
     FOnHPChangedDelegate OnHPChanged;
     FOnBulletQuantityChangedDelegate OnBulletQuantityChanged;
-    FOnTotalScoreChangedDelegate OnTotalScoreChanged;
+    FOnScoreChangedDelegate OnScoreChanged;
     
 private:
     void Attack();
@@ -86,5 +87,8 @@ private:
     UParticleSystem* MuzzleParticleSystem;
     
     UPROPERTY(Transient)
-    int32 TotalScore;
+    int32 CurrentScore;
+    
+    UPROPERTY(Transient)
+    int32 HighScore;
 };

@@ -6,7 +6,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
-ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55), TotalScore(0)
+ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55), CurrentScore(0), HighScore(0)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -142,10 +142,10 @@ float ACorporisChampion::GetHPRatio()
     return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 800.0f));
 }
 
-void ACorporisChampion::AddScore()
+void ACorporisChampion::AddCurrentScore()
 {
-    ++TotalScore;
-    OnTotalScoreChanged.Broadcast();
+    if (++CurrentScore > HighScore) { ++HighScore; }
+    OnScoreChanged.Broadcast();
 }
 
 void ACorporisChampion::Attack()
