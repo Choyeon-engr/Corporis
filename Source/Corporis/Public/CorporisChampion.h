@@ -10,7 +10,8 @@
 #include "CorporisChampion.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
-DECLARE_MULTICAST_DELEGATE(FBulletQuantityChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnBulletQuantityChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnTotalScoreChangedDelegate);
 
 UCLASS()
 class CORPORIS_API ACorporisChampion : public ACharacter
@@ -39,10 +40,13 @@ public:
     
     bool ChampionIsDead() const;
     float GetHPRatio();
-    int32 GetBulletQuantity() { return BulletQuantity; };
+    int32 GetBulletQuantity() const { return BulletQuantity; }
+    int32 GetTotalScore() const { return TotalScore; }
+    void AddScore();
     
     FOnHPChangedDelegate OnHPChanged;
-    FBulletQuantityChangedDelegate BulletQuantityChanged;
+    FOnBulletQuantityChangedDelegate OnBulletQuantityChanged;
+    FOnTotalScoreChangedDelegate OnTotalScoreChanged;
     
 private:
     void Attack();
@@ -80,4 +84,7 @@ private:
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, Meta = (AllowPrivateAccess = true))
     UParticleSystem* MuzzleParticleSystem;
+    
+    UPROPERTY(Transient)
+    int32 TotalScore;
 };

@@ -6,7 +6,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
-ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55)
+ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55), TotalScore(0)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -75,7 +75,7 @@ void ACorporisChampion::PostInitializeComponents()
             Destroy();
         }), DeadTimer, false);
     });
-}
+};
 
 // Called to bind functionality to input
 void ACorporisChampion::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -142,6 +142,12 @@ float ACorporisChampion::GetHPRatio()
     return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 800.0f));
 }
 
+void ACorporisChampion::AddScore()
+{
+    ++TotalScore;
+    OnTotalScoreChanged.Broadcast();
+}
+
 void ACorporisChampion::Attack()
 {
     if (BulletQuantity < 0) { return; }
@@ -158,13 +164,13 @@ void ACorporisChampion::Attack()
         
         GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
             BulletQuantity = 8;
-            BulletQuantityChanged.Broadcast();
+            OnBulletQuantityChanged.Broadcast();
         }), ReloadTimer, false);
         
         return;
     }
     
-    BulletQuantityChanged.Broadcast();
+    OnBulletQuantityChanged.Broadcast();
     
     UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("CorporisPistol"))), GetActorRotation());
     
