@@ -4,9 +4,10 @@
 #include "CorporisChampion.h"
 #include "CorporisMinion.h"
 #include "Components/PawnNoiseEmitterComponent.h"
+#include "CorporisSaveGame.h"
 
 // Sets default values
-ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55), CurrentScore(0), HighScore(0)
+ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55), SaveSlotName(TEXT("Guest")), CurrentScore(0), HighScore(0)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -30,6 +31,12 @@ ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), Las
     static ConstructorHelpers::FObjectFinder<UParticleSystem> WEAPON_MUZZLE(TEXT("/Game/ParagonLtBelica/FX/Particles/Belica/Abilities/Primary/FX/P_BelicaMuzzle"));
     if (WEAPON_MUZZLE.Succeeded())
         MuzzleParticleSystem = WEAPON_MUZZLE.Object;
+    
+    auto CorporisSaveGame = Cast<UCorporisSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+    if (!CorporisSaveGame)
+        CorporisSaveGame = GetMutableDefault<UCorporisSaveGame>();
+    HighScore = CorporisSaveGame->HighScore;
+    SavePlayerData();
 }
 
 // Called when the game starts or when spawned
@@ -146,6 +153,16 @@ void ACorporisChampion::AddCurrentScore()
 {
     if (++CurrentScore > HighScore) { ++HighScore; }
     OnScoreChanged.Broadcast();
+    
+    SavePlayerData();
+}
+
+void ACorporisChampion::SavePlayerData()
+{
+    UCorporisSaveGame* NewPlayerData = NewObject<UCorporisSaveGame>();
+    NewPlayerData->HighScore = HighScore;
+    
+    UGameplayStatics::SaveGameToSlot(NewPlayerData, SaveSlotName, 0);
 }
 
 void ACorporisChampion::Attack()

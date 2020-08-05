@@ -44,6 +44,7 @@ public:
     int32 GetCurrentScore() const { return CurrentScore; }
     int32 GetHighScore() const { return HighScore; }
     void AddCurrentScore();
+    void SavePlayerData();
     
     FOnHPChangedDelegate OnHPChanged;
     FOnBulletQuantityChangedDelegate OnBulletQuantityChanged;
@@ -58,6 +59,7 @@ private:
     float LastFootstep;
     float DeadTimer;
     float ReloadTimer;
+    FString SaveSlotName;
     
     FTimerHandle DeadTimerHandle = { };
     FTimerHandle ReloadTimerHandle = { };
