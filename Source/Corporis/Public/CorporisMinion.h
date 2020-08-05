@@ -56,6 +56,7 @@ private:
     int32 MinionHP;
     bool bOnSeePawn;
     bool bOnHearNoise;
+    bool bIsDead;
     float DeadTimer;
     float NextAttackTime;
     

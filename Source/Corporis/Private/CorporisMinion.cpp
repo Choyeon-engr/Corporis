@@ -7,7 +7,7 @@
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
-ACorporisMinion::ACorporisMinion() : MinionHP(500), bOnSeePawn(false), bOnHearNoise(false), DeadTimer(1.0f), NextAttackTime(0)
+ACorporisMinion::ACorporisMinion() : MinionHP(500), bOnSeePawn(false), bOnHearNoise(false), bIsDead(false),  DeadTimer(1.0f), NextAttackTime(0)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -66,8 +66,8 @@ void ACorporisMinion::PostInitializeComponents()
     CorporisAnim->MEnablePhysics.AddLambda([this]() -> void {
         UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("spine_01"))), GetActorRotation());
         GetMesh()->SetSimulatePhysics(true);
-        
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        
         GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
             Destroy();
         }), DeadTimer, false);
@@ -102,6 +102,13 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
         OnHPChanged.Broadcast();
         
         CorporisAnim->SetIsDead(true);
+        
+        if (!bIsDead)
+        {
+            bIsDead = true;
+            auto CorporisChampion = Cast<ACorporisChampion>(DamageCauser);
+            CorporisChampion->AddScore();
+        }
     }
     
     else
@@ -115,10 +122,15 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
         {
             CorporisAIController->StopAI();
             CorporisAnim->SetIsDead(true);
+            
+            if (!bIsDead)
+            {
+                bIsDead = true;
+                auto CorporisChampion = Cast<ACorporisChampion>(DamageCauser);
+                CorporisChampion->AddScore();
+            }
         }
     }
-    
-    OnHPChanged.Broadcast();
     
     return FinalDamage;
 }
