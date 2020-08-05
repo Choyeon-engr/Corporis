@@ -19,7 +19,7 @@ public:
     ACorporisPlayerController();
     
 public:
-    UCorporisHUDWidget* GetHUDWidget() const { return HUDWidget; };
+    UCorporisHUDWidget* GetHUDWidget() const { return HUDWidget; }
     
 protected:
     virtual void BeginPlay() override;
