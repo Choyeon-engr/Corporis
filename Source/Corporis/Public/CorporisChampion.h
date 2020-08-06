@@ -10,6 +10,7 @@
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnBulletQuantityChangedDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnScoreChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnKillInfoChangedDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnDeathInfoChangedDelegate);
 
 UCLASS()
@@ -27,10 +28,13 @@ public:
     int32 GetBulletQuantity() const { return BulletQuantity; }
     int32 GetCurrentScore() const { return CurrentScore; }
     int32 GetHighScore() const { return HighScore; }
+    FString GetKillInfo() const { return KillInfo; }
     FString GetDeathInfo() const { return DeathInfo; }
     
     void AddCurrentScore();
     void SavePlayerData();
+    
+    void SetKillInfo(FString Kill);
 
 protected:
     // Called when the game starts or when spawned
@@ -53,6 +57,7 @@ public:
     FOnHPChangedDelegate OnHPChanged;
     FOnBulletQuantityChangedDelegate OnBulletQuantityChanged;
     FOnScoreChangedDelegate OnScoreChanged;
+    FOnKillInfoChangedDelegate OnKillInfoChanged;
     FOnDeathInfoChangedDelegate OnDeathInfoChanged;
 
 private:
@@ -60,14 +65,17 @@ private:
     int32 BulletQuantity;
     int32 CurrentScore;
     int32 HighScore;
+    FString KillInfo;
     FString DeathInfo;
     FString SaveSlotName;
     float DeadTimer;
     float ReloadTimer;
+    float ShowUITimer;
     float LastFootstep;
     
     FTimerHandle DeadTimerHandle = { };
     FTimerHandle ReloadTimerHandle = { };
+    FTimerHandle ShowUITimerHandle = { };
     
     UPROPERTY()
     UCorporisAnimInstance* CorporisAnim;

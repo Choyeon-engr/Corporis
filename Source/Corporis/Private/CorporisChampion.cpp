@@ -4,7 +4,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
-ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), CurrentScore(0), HighScore(0),  DeathInfo(TEXT("")), SaveSlotName(TEXT("Guest")), DeadTimer(0.03f), ReloadTimer(2.55), LastFootstep(0.0f)
+ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), CurrentScore(0), HighScore(0),  KillInfo(TEXT("")), DeathInfo(TEXT("")), SaveSlotName(TEXT("Guest")), DeadTimer(0.03f), ReloadTimer(2.55f), ShowUITimer(1.0f), LastFootstep(0.0f)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -49,6 +49,16 @@ void ACorporisChampion::SavePlayerData()
     UCorporisSaveGame* NewPlayerData = NewObject<UCorporisSaveGame>();
     NewPlayerData->SetHighScore(HighScore);
     UGameplayStatics::SaveGameToSlot(NewPlayerData, SaveSlotName, 0);
+}
+
+void ACorporisChampion::SetKillInfo(FString Kill)
+{
+    KillInfo = Kill;
+    OnKillInfoChanged.Broadcast();
+    GetWorld()->GetTimerManager().SetTimer(ShowUITimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
+        KillInfo = TEXT("");
+        OnKillInfoChanged.Broadcast();
+    }), ShowUITimer, false);
 }
 
 // Called when the game starts or when spawned

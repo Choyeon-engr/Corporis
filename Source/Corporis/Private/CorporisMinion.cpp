@@ -154,6 +154,7 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
             bIsDead = true;
             auto CorporisChampion = Cast<ACorporisChampion>(DamageCauser);
             CorporisChampion->AddCurrentScore();
+            CorporisChampion->SetKillInfo(TEXT("Headshot Minion!"));
         }
     }
     
@@ -174,6 +175,7 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
                 bIsDead = true;
                 auto CorporisChampion = Cast<ACorporisChampion>(DamageCauser);
                 CorporisChampion->AddCurrentScore();
+                CorporisChampion->SetKillInfo(TEXT("Kill Minion!"));
             }
         }
     }

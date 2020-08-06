@@ -33,5 +33,8 @@ private:
     class UTextBlock* HighScore;
     
     UPROPERTY()
+    class UTextBlock* KillInfo;
+    
+    UPROPERTY()
     class UTextBlock* DeathInfo;
 };
