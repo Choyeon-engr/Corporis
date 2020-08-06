@@ -1,14 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Corporis.h"
 #include "Blueprint/UserWidget.h"
 #include "CorporisHUDWidget.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class CORPORIS_API UCorporisHUDWidget : public UUserWidget
 {
@@ -19,6 +14,7 @@ public:
     
 protected:
     virtual void NativeConstruct() override;
+    
     void UpdateChampionStat();
     
 private:
@@ -35,4 +31,7 @@ private:
     
     UPROPERTY()
     class UTextBlock* HighScore;
+    
+    UPROPERTY()
+    class UTextBlock* DeathInfo;
 };

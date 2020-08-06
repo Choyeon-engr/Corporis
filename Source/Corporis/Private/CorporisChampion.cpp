@@ -1,13 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CorporisChampion.h"
 #include "CorporisMinion.h"
-#include "Components/PawnNoiseEmitterComponent.h"
 #include "CorporisSaveGame.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
-ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), LastFootstep(0.0f), DeadTimer(0.03f), ReloadTimer(2.55), SaveSlotName(TEXT("Guest")), CurrentScore(0), HighScore(0)
+ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), CurrentScore(0), HighScore(0),  DeathInfo(TEXT("")), SaveSlotName(TEXT("Guest")), DeadTimer(0.03f), ReloadTimer(2.55), LastFootstep(0.0f)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -20,13 +17,13 @@ ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), Las
     if (WEAPON_FIRE.Succeeded())
         WeaponFireSoundWave = WEAPON_FIRE.Object;
     
-    static ConstructorHelpers::FObjectFinder<USoundWave> IMPACT_BODY(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/Rifle_ImpactBody04"));
-    if (IMPACT_BODY.Succeeded())
-        ImpactBodySoundWave = IMPACT_BODY.Object;
-    
     static ConstructorHelpers::FObjectFinder<USoundWave> WEAPON_RELOAD(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/Rifle_Reload03"));
     if (WEAPON_RELOAD.Succeeded())
         WeaponReloadSoundWave = WEAPON_RELOAD.Object;
+    
+    static ConstructorHelpers::FObjectFinder<USoundWave> IMPACT_BODY(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/Rifle_ImpactBody04"));
+    if (IMPACT_BODY.Succeeded())
+        ImpactBodySoundWave = IMPACT_BODY.Object;
     
     static ConstructorHelpers::FObjectFinder<UParticleSystem> WEAPON_MUZZLE(TEXT("/Game/ParagonLtBelica/FX/Particles/Belica/Abilities/Primary/FX/P_BelicaMuzzle"));
     if (WEAPON_MUZZLE.Succeeded())
@@ -35,8 +32,23 @@ ACorporisChampion::ACorporisChampion() : ChampionHP(800), BulletQuantity(8), Las
     auto CorporisSaveGame = Cast<UCorporisSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
     if (!CorporisSaveGame)
         CorporisSaveGame = GetMutableDefault<UCorporisSaveGame>();
-    HighScore = CorporisSaveGame->HighScore;
+    
+    HighScore = CorporisSaveGame->GetHighScore();
     SavePlayerData();
+}
+
+void ACorporisChampion::AddCurrentScore()
+{
+    if (++CurrentScore > HighScore) { ++HighScore; }
+    OnScoreChanged.Broadcast();
+    SavePlayerData();
+}
+
+void ACorporisChampion::SavePlayerData()
+{
+    UCorporisSaveGame* NewPlayerData = NewObject<UCorporisSaveGame>();
+    NewPlayerData->SetHighScore(HighScore);
+    UGameplayStatics::SaveGameToSlot(NewPlayerData, SaveSlotName, 0);
 }
 
 // Called when the game starts or when spawned
@@ -51,23 +63,6 @@ void ACorporisChampion::BeginPlay()
     UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("weapon"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
 }
 
-// Called every frame
-void ACorporisChampion::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-
-    FVector VelocityVector = GetCharacterMovement()->Velocity;
-    float VectorMagnitude = VelocityVector.Size();
-
-    float Now = GetWorld()->GetTimeSeconds();
-
-    if (Now > LastFootstep + 1.0f && VectorMagnitude > 0.0f && !GetCharacterMovement()->IsCrouching())
-    {
-        MakeNoise(0.5f, this, FVector::ZeroVector);
-        LastFootstep = Now;
-    }
-}
-
 void ACorporisChampion::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
@@ -76,13 +71,34 @@ void ACorporisChampion::PostInitializeComponents()
     
     CorporisAnim->CEnablePhysics.AddLambda([this]() -> void {
         GetMesh()->SetSimulatePhysics(true);
-        
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
-            Destroy();
-        }), DeadTimer, false);
+        GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void { Destroy(); }), DeadTimer, false);
     });
 };
+
+void ACorporisChampion::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+    
+    GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+}
+
+// Called every frame
+void ACorporisChampion::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    FVector VelocityVector = GetCharacterMovement()->Velocity;
+    float VectorMagnitude = VelocityVector.Size();
+    
+    float Now = GetWorld()->GetTimeSeconds();
+
+    if (Now > LastFootstep + 1.0f && VectorMagnitude > 0.0f && !GetCharacterMovement()->IsCrouching())
+    {
+        MakeNoise(0.5f, this, FVector::ZeroVector);
+        LastFootstep = Now;
+    }
+}
 
 // Called to bind functionality to input
 void ACorporisChampion::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -111,6 +127,9 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
         
         DisableInput(CorporisPlayerController);
         CorporisAnim->SetIsDead(true);
+        
+        DeathInfo = TEXT("Be killed with a headshot!");
+        OnDeathInfoChanged.Broadcast();
     }
     
     else
@@ -124,45 +143,13 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
         {
             DisableInput(CorporisPlayerController);
             CorporisAnim->SetIsDead(true);
+            
+            DeathInfo = TEXT("Be killed!");
+            OnDeathInfoChanged.Broadcast();
         }
     }
     
     return FinalDamage;
-}
-
-void ACorporisChampion::PossessedBy(AController* NewController)
-{
-    Super::PossessedBy(NewController);
-    
-    GetCharacterMovement()->MaxWalkSpeed = 500.0f;
-}
-
-bool ACorporisChampion::ChampionIsDead() const
-{
-    if (ChampionHP <= 0) { return true; }
-    
-    return false;
-}
-
-float ACorporisChampion::GetHPRatio()
-{
-    return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 800.0f));
-}
-
-void ACorporisChampion::AddCurrentScore()
-{
-    if (++CurrentScore > HighScore) { ++HighScore; }
-    OnScoreChanged.Broadcast();
-    
-    SavePlayerData();
-}
-
-void ACorporisChampion::SavePlayerData()
-{
-    UCorporisSaveGame* NewPlayerData = NewObject<UCorporisSaveGame>();
-    NewPlayerData->HighScore = HighScore;
-    
-    UGameplayStatics::SaveGameToSlot(NewPlayerData, SaveSlotName, 0);
 }
 
 void ACorporisChampion::Attack()

@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Corporis.h"
@@ -12,6 +10,7 @@
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnBulletQuantityChangedDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnScoreChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnDeathInfoChangedDelegate);
 
 UCLASS()
 class CORPORIS_API ACorporisChampion : public ACharacter
@@ -21,13 +20,24 @@ class CORPORIS_API ACorporisChampion : public ACharacter
 public:
     // Sets default values for this character's properties
     ACorporisChampion();
+    
+    bool ChampionIsDead() const { return ChampionHP <= 0; }
+    
+    float GetHPRatio() { return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 800.0f)); }
+    int32 GetBulletQuantity() const { return BulletQuantity; }
+    int32 GetCurrentScore() const { return CurrentScore; }
+    int32 GetHighScore() const { return HighScore; }
+    FString GetDeathInfo() const { return DeathInfo; }
+    
+    void AddCurrentScore();
+    void SavePlayerData();
 
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
     virtual void PostInitializeComponents() override;
+    virtual void PossessedBy(AController* NewController) override;
 
-public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
@@ -36,30 +46,25 @@ public:
     
     virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
     
-    virtual void PossessedBy(AController* NewController) override;
+private:
+    void Attack();
     
-    bool ChampionIsDead() const;
-    float GetHPRatio();
-    int32 GetBulletQuantity() const { return BulletQuantity; }
-    int32 GetCurrentScore() const { return CurrentScore; }
-    int32 GetHighScore() const { return HighScore; }
-    void AddCurrentScore();
-    void SavePlayerData();
-    
+public:
     FOnHPChangedDelegate OnHPChanged;
     FOnBulletQuantityChangedDelegate OnBulletQuantityChanged;
     FOnScoreChangedDelegate OnScoreChanged;
-    
-private:
-    void Attack();
+    FOnDeathInfoChangedDelegate OnDeathInfoChanged;
 
 private:
     int32 ChampionHP;
     int32 BulletQuantity;
-    float LastFootstep;
+    int32 CurrentScore;
+    int32 HighScore;
+    FString DeathInfo;
+    FString SaveSlotName;
     float DeadTimer;
     float ReloadTimer;
-    FString SaveSlotName;
+    float LastFootstep;
     
     FTimerHandle DeadTimerHandle = { };
     FTimerHandle ReloadTimerHandle = { };
@@ -70,27 +75,21 @@ private:
     UPROPERTY()
     ACorporisPlayerController* CorporisPlayerController;
     
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
     class UPawnNoiseEmitterComponent* NoiseEmitter;
     
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Sound, Meta = (AllowPrivateAccess = true))
     class USoundWave* WeaponFireSoundWave;
     
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
-    class USoundWave* ImpactBodySoundWave;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Sound, Meta = (AllowPrivateAccess = true))
     class USoundWave* WeaponReloadSoundWave;
     
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (AllowPrivateAccess = true))
-    TSubclassOf<UCameraShake> CameraShake;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Sound, Meta = (AllowPrivateAccess = true))
+    class USoundWave* ImpactBodySoundWave;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, Meta = (AllowPrivateAccess = true))
     UParticleSystem* MuzzleParticleSystem;
     
-    UPROPERTY(Transient)
-    int32 CurrentScore;
-    
-    UPROPERTY(Transient)
-    int32 HighScore;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (AllowPrivateAccess = true))
+    TSubclassOf<UCameraShake> CameraShake;
 };
