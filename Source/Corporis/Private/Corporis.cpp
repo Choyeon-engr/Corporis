@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "Corporis.h"
 #include "Modules/ModuleManager.h"
 

@@ -1,14 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Corporis.h"
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTTask_FindPatrolPos.generated.h"
 
-/**
- *
- */
 UCLASS()
 class CORPORIS_API UBTTask_FindPatrolPos : public UBTTaskNode
 {

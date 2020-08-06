@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CorporisMinion.h"
 #include "CorporisAIController.h"
 #include "CorporisChampion.h"
@@ -40,6 +37,51 @@ ACorporisMinion::ACorporisMinion() : MinionHP(500), bOnSeePawn(false), bOnHearNo
         DeathParticleSystem = MINION_DEATH.Object;
 }
 
+void ACorporisMinion::Attack()
+{
+    if (NextAttackTime > GetWorld()->GetTimeSeconds())
+    {
+        CorporisAnim->SetAttackAngle(3);
+        return;
+    }
+    
+    NextAttackTime = GetWorld()->GetTimeSeconds() + 0.6f;
+    
+    FHitResult HitResult;
+    FCollisionQueryParams Params(NAME_None, false, this);
+    bool bResult = GetWorld()->SweepSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 2000.0f, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel2, FCollisionShape::MakeSphere(500.0f), Params);
+    auto Target = Cast<ACorporisChampion>(HitResult.Actor);
+    
+    if (bResult && Target)
+    {
+        if (Target->ChampionIsDead())
+            CorporisAnim->SetAttackAngle(3);
+        
+        else
+        {
+            float HightGap = Target->GetActorLocation().Z - GetActorLocation().Z;
+            
+            if (HightGap > 200.0f)
+                CorporisAnim->SetAttackAngle((int)EAngle::TOP);
+            
+            else if (HightGap < -200.0f)
+                CorporisAnim->SetAttackAngle((int)EAngle::BTM);
+            
+            else
+                CorporisAnim->SetAttackAngle((int)EAngle::MID);
+            
+            UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("Muzzle_Front"))), GetActorRotation());
+            
+            UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
+            
+            UGameplayStatics::ApplyPointDamage(Target, 50.0f, GetActorForwardVector(), HitResult, GetController(), this, nullptr);
+        }
+    }
+    
+    else
+        CorporisAnim->SetAttackAngle(3);
+}
+
 // Called when the game starts or when spawned
 void ACorporisMinion::BeginPlay()
 {
@@ -48,13 +90,6 @@ void ACorporisMinion::BeginPlay()
     UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("weapon_r"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
     
     UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("spine_01"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
-}
-
-// Called every frame
-void ACorporisMinion::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-
 }
 
 void ACorporisMinion::PostInitializeComponents()
@@ -67,14 +102,25 @@ void ACorporisMinion::PostInitializeComponents()
         UGameplayStatics::SpawnEmitterAtLocation(this, DeathParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("spine_01"))), GetActorRotation());
         GetMesh()->SetSimulatePhysics(true);
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        
-        GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
-            Destroy();
-        }), DeadTimer, false);
+        GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void { Destroy(); }), DeadTimer, false);
     });
     
     PawnSensor->OnSeePawn.AddDynamic(this, &ACorporisMinion::OnSeePawn);
     PawnSensor->OnHearNoise.AddDynamic(this, &ACorporisMinion::OnHearNoise);
+}
+
+void ACorporisMinion::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+    
+    GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+}
+
+// Called every frame
+void ACorporisMinion::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
 }
 
 // Called to bind functionality to input
@@ -133,56 +179,4 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
     }
     
     return FinalDamage;
-}
-
-void ACorporisMinion::PossessedBy(AController* NewController)
-{
-    Super::PossessedBy(NewController);
-    
-    GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-}
-
-void ACorporisMinion::Attack()
-{
-    if (NextAttackTime > GetWorld()->GetTimeSeconds())
-    {
-        CorporisAnim->SetAttackAngle(3);
-        return;
-    }
-    
-    NextAttackTime = GetWorld()->GetTimeSeconds() + 0.6f;
-    
-    FHitResult HitResult;
-    FCollisionQueryParams Params(NAME_None, false, this);
-    bool bResult = GetWorld()->SweepSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 2000.0f, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel2, FCollisionShape::MakeSphere(500.0f), Params);
-    auto Target = Cast<ACorporisChampion>(HitResult.Actor);
-    
-    if (bResult && Target)
-    {
-        if (Target->ChampionIsDead())
-            CorporisAnim->SetAttackAngle(3);
-        
-        else
-        {
-            float HightGap = Target->GetActorLocation().Z - GetActorLocation().Z;
-            
-            if (HightGap > 200.0f)
-                CorporisAnim->SetAttackAngle((int)EAngle::TOP);
-            
-            else if (HightGap < -200.0f)
-                CorporisAnim->SetAttackAngle((int)EAngle::BTM);
-            
-            else
-                CorporisAnim->SetAttackAngle((int)EAngle::MID);
-            
-            UGameplayStatics::SpawnEmitterAtLocation(this, MuzzleParticleSystem, GetMesh()->GetSocketLocation(FName(TEXT("Muzzle_Front"))), GetActorRotation());
-            
-            UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
-            
-            UGameplayStatics::ApplyPointDamage(Target, 50.0f, GetActorForwardVector(), HitResult, GetController(), this, nullptr);
-        }
-    }
-    
-    else
-        CorporisAnim->SetAttackAngle(3);
 }

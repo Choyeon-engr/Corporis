@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Corporis.h"
@@ -10,9 +8,6 @@ DECLARE_MULTICAST_DELEGATE(FCEnablePhysicsDelegate);
 DECLARE_MULTICAST_DELEGATE(FMEnablePhysicsDelegate);
 DECLARE_MULTICAST_DELEGATE(FReloadCompletedDelegate);
 
-/**
- *
- */
 UCLASS()
 class CORPORIS_API UCorporisAnimInstance : public UAnimInstance
 {
@@ -21,18 +16,18 @@ class CORPORIS_API UCorporisAnimInstance : public UAnimInstance
 public:
     UCorporisAnimInstance();
     
-public:
-    virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-    
     void SetIsDead(bool IsDead) { bIsDead = IsDead; }
-    void SetAttackAngle(int AttackAngle) { iAttackAngle = AttackAngle; }
     void SetIsDamaged(bool IsDamaged) { bIsDamaged = IsDamaged; }
+    void SetAttackAngle(int AttackAngle) { iAttackAngle = AttackAngle; }
     
     void PlayReloadMontage();
     
     FCEnablePhysicsDelegate CEnablePhysics;
     FMEnablePhysicsDelegate MEnablePhysics;
     FReloadCompletedDelegate ReloadCompleted;
+    
+protected:
+    virtual void NativeUpdateAnimation(float DeltaSeconds) override;
     
 private:
     UFUNCTION()
@@ -42,13 +37,13 @@ private:
     void AnimNotify_MEnablePhysics() { MEnablePhysics.Broadcast(); }
     
     UFUNCTION()
+    void AnimNotify_ReloadCompleted() { ReloadCompleted.Broadcast(); }
+    
+    UFUNCTION()
     void AnimNotify_CFinishHitReact() { bIsDamaged = false; }
     
     UFUNCTION()
     void AnimNotify_MFinishHitReact() { bIsDamaged = false; }
-    
-    UFUNCTION()
-    void AnimNotify_ReloadCompleted() { ReloadCompleted.Broadcast(); }
     
 private:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
@@ -58,10 +53,10 @@ private:
     bool bIsDead;
     
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Status, Meta = (AllowPrivateAccess = true))
-    int iAttackAngle;
+    bool bIsDamaged;
     
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Status, Meta = (AllowPrivateAccess = true))
-    bool bIsDamaged;
+    int iAttackAngle;
     
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Reload, Meta = (AllowPrivateAccess = true))
     UAnimMontage* ReloadMontage;

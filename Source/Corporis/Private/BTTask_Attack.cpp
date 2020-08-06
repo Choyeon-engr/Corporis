@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BTTask_Attack.h"
 #include "CorporisAIController.h"
 #include "CorporisMinion.h"

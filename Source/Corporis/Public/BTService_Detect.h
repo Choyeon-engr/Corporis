@@ -1,14 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Corporis.h"
 #include "BehaviorTree/BTService.h"
 #include "BTService_Detect.generated.h"
 
-/**
- *
- */
 UCLASS()
 class CORPORIS_API UBTService_Detect : public UBTService
 {

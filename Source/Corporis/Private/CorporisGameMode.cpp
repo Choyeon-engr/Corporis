@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CorporisGameMode.h"
 #include "CorporisChampion.h"
 #include "CorporisPlayerController.h"

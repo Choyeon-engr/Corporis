@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BTService_Detect.h"
 #include "CorporisAIController.h"
 #include "CorporisChampion.h"

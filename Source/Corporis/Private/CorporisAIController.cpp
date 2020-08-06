@@ -1,10 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CorporisAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BlackboardData.h"
 
 const FName ACorporisAIController::InitialPosKey(TEXT("InitialPos"));
 const FName ACorporisAIController::PatrolPosKey(TEXT("PatrolPos"));
@@ -19,6 +16,12 @@ ACorporisAIController::ACorporisAIController()
     if (BTObject.Succeeded()) { BTAsset = BTObject.Object; }
 }
 
+void ACorporisAIController::StopAI()
+{
+    auto BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
+    BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
+}
+
 void ACorporisAIController::OnPossess(APawn* InPawn)
 {
     Super::OnPossess(InPawn);
@@ -26,10 +29,4 @@ void ACorporisAIController::OnPossess(APawn* InPawn)
     UseBlackboard(BBAsset, Blackboard);
     Blackboard->SetValueAsVector(InitialPosKey, InPawn->GetActorLocation());
     RunBehaviorTree(BTAsset);
-}
-
-void ACorporisAIController::StopAI()
-{
-    auto BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
-    BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 }

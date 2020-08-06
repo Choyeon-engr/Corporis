@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BTTask_TurnToTarget.h"
 #include "CorporisAIController.h"
 #include "CorporisChampion.h"

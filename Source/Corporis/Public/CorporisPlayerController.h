@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Corporis.h"
@@ -7,9 +5,6 @@
 #include "CorporisHUDWidget.h"
 #include "CorporisPlayerController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class CORPORIS_API ACorporisPlayerController : public APlayerController
 {
@@ -18,7 +13,6 @@ class CORPORIS_API ACorporisPlayerController : public APlayerController
 public:
     ACorporisPlayerController();
     
-public:
     UCorporisHUDWidget* GetHUDWidget() const { return HUDWidget; }
     
 protected:
