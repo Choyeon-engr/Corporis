@@ -24,7 +24,7 @@ public:
     
     bool ChampionIsDead() const { return ChampionHP <= 0; }
     
-    float GetHPRatio() { return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 800.0f)); }
+    float GetHPRatio() { return ((ChampionHP < KINDA_SMALL_NUMBER) ? 0.0f : (ChampionHP / 2500.0f)); }
     int32 GetBulletQuantity() const { return BulletQuantity; }
     int32 GetCurrentScore() const { return CurrentScore; }
     int32 GetHighScore() const { return HighScore; }
