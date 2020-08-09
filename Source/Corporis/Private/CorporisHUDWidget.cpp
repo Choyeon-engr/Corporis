@@ -1,7 +1,7 @@
 #include "CorporisHUDWidget.h"
+#include "CorporisChampion.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
-#include "CorporisChampion.h"
 
 void UCorporisHUDWidget::BindChampionStat(ACorporisChampion* ChampionStat)
 {
@@ -10,7 +10,6 @@ void UCorporisHUDWidget::BindChampionStat(ACorporisChampion* ChampionStat)
     ChampionStat->OnBulletQuantityChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
     ChampionStat->OnScoreChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
     ChampionStat->OnKillInfoChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
-    ChampionStat->OnDeathInfoChanged.AddUObject(this, &UCorporisHUDWidget::UpdateChampionStat);
 }
 
 void UCorporisHUDWidget::NativeConstruct()
@@ -22,7 +21,6 @@ void UCorporisHUDWidget::NativeConstruct()
     CurrentScore = Cast<UTextBlock>(GetWidgetFromName(TEXT("TXT_CurrentScore")));
     HighScore = Cast<UTextBlock>(GetWidgetFromName(TEXT("TXT_HighScore")));
     KillInfo = Cast<UTextBlock>(GetWidgetFromName(TEXT("TXT_KillInfo")));
-    DeathInfo = Cast<UTextBlock>(GetWidgetFromName(TEXT("TXT_DeathInfo")));
 }
 
 void UCorporisHUDWidget::UpdateChampionStat()
@@ -32,5 +30,4 @@ void UCorporisHUDWidget::UpdateChampionStat()
     CurrentScore->SetText(FText::FromString(FString::FromInt(CurrentChampionStat->GetCurrentScore())));
     HighScore->SetText(FText::FromString(FString::FromInt(CurrentChampionStat->GetHighScore())));
     KillInfo->SetText(FText::FromString(FString(CurrentChampionStat->GetKillInfo())));
-    DeathInfo->SetText(FText::FromString(FString(CurrentChampionStat->GetDeathInfo())));
 }

@@ -18,6 +18,7 @@ protected:
     void UpdateChampionStat();
     
 private:
+    UPROPERTY()
     class ACorporisChampion* CurrentChampionStat;
     
     UPROPERTY()
@@ -34,7 +35,4 @@ private:
     
     UPROPERTY()
     class UTextBlock* KillInfo;
-    
-    UPROPERTY()
-    class UTextBlock* DeathInfo;
 };
