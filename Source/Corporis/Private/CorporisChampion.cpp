@@ -69,6 +69,7 @@ void ACorporisChampion::BeginPlay()
     CorporisPlayerController = Cast<ACorporisPlayerController>(GetWorld()->GetFirstPlayerController());
     
     CorporisPlayerController->GetHUDWidget()->BindChampionStat(this);
+    CorporisPlayerController->GetDeathWidget()->BindChampionStat(this);
     
     UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("weapon"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
 }
@@ -135,8 +136,9 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
         ChampionHP = 0;
         OnHPChanged.Broadcast();
         
-        DisableInput(CorporisPlayerController);
         CorporisAnim->SetIsDead(true);
+        
+        CorporisPlayerController->ShowDeathUI();
         
         DeathInfo = TEXT("Be killed with a headshot!");
         OnDeathInfoChanged.Broadcast();
@@ -151,8 +153,9 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
         
         if (ChampionHP <= 0)
         {
-            DisableInput(CorporisPlayerController);
             CorporisAnim->SetIsDead(true);
+            
+            CorporisPlayerController->ShowDeathUI();
             
             DeathInfo = TEXT("Be killed!");
             OnDeathInfoChanged.Broadcast();
