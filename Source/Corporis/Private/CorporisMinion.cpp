@@ -142,16 +142,19 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
     
     if (HitResult.BoneName == "head")
     {
-        CorporisAIController->StopAI();
-        
-        MinionHP = 0;
-        OnHPChanged.Broadcast();
-        
-        CorporisAnim->SetIsDead(true);
-        
         if (!bIsDead)
         {
             bIsDead = true;
+            
+            FVector2D RandomXY = FMath::RandPointInCircle(1300.0f);
+            
+            CorporisAIController->StopAI();
+            
+            MinionHP = 0;
+            OnHPChanged.Broadcast();
+            
+            CorporisAnim->SetIsDead(true);
+            
             auto CorporisChampion = Cast<ACorporisChampion>(DamageCauser);
             CorporisChampion->AddCurrentScore();
             CorporisChampion->SetKillInfo(TEXT("Headshot Minion!"));
@@ -167,12 +170,15 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
         
         if (MinionHP <= 0)
         {
-            CorporisAIController->StopAI();
-            CorporisAnim->SetIsDead(true);
-            
             if (!bIsDead)
             {
                 bIsDead = true;
+                
+                FVector2D RandomXY = FMath::RandPointInCircle(1300.0f);
+                
+                CorporisAIController->StopAI();
+                CorporisAnim->SetIsDead(true);
+                
                 auto CorporisChampion = Cast<ACorporisChampion>(DamageCauser);
                 CorporisChampion->AddCurrentScore();
                 CorporisChampion->SetKillInfo(TEXT("Kill Minion!"));

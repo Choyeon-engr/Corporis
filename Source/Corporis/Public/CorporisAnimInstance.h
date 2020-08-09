@@ -22,10 +22,6 @@ public:
     
     void PlayReloadMontage();
     
-    FCEnablePhysicsDelegate CEnablePhysics;
-    FMEnablePhysicsDelegate MEnablePhysics;
-    FReloadCompletedDelegate ReloadCompleted;
-    
 protected:
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
     
@@ -44,6 +40,11 @@ private:
     
     UFUNCTION()
     void AnimNotify_MFinishHitReact() { bIsDamaged = false; }
+    
+public:
+    FCEnablePhysicsDelegate CEnablePhysics;
+    FMEnablePhysicsDelegate MEnablePhysics;
+    FReloadCompletedDelegate ReloadCompleted;
     
 private:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
