@@ -11,6 +11,9 @@ void ACorporisPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     
+    FInputModeGameOnly GameMode;
+    SetInputMode(GameMode);
+    
     HUDWidget = CreateWidget<UCorporisHUDWidget>(this, HUDWidgetClass);
     HUDWidget->AddToViewport();
 }
