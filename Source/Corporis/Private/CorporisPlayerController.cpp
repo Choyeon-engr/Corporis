@@ -7,26 +7,13 @@ ACorporisPlayerController::ACorporisPlayerController()
     if (UI_HUD_C.Succeeded())
         HUDWidgetClass = UI_HUD_C.Class;
     
+    static ConstructorHelpers::FClassFinder<UCorporisDeathWidget> UI_DEATH_C(TEXT("/Game/Blueprints/UI/BP_UI_Death.BP_UI_Death_C"));
+    if (UI_DEATH_C.Succeeded())
+        DeathWidgetClass = UI_DEATH_C.Class;
+    
     static ConstructorHelpers::FClassFinder<UCorporisPauseWidget> UI_PAUSE_C(TEXT("/Game/Blueprints/UI/BP_UI_Pause.BP_UI_Pause_C"));
     if (UI_PAUSE_C.Succeeded())
         PauseWidgetClass = UI_PAUSE_C.Class;
-}
-
-void ACorporisPlayerController::BeginPlay()
-{
-    Super::BeginPlay();
-    
-    ChangeInputMode(true);
-    
-    HUDWidget = CreateWidget<UCorporisHUDWidget>(this, HUDWidgetClass);
-    HUDWidget->AddToViewport();
-}
-
-void ACorporisPlayerController::SetupInputComponent()
-{
-    Super::SetupInputComponent();
-    
-    InputComponent->BindAction(TEXT("Pause"), EInputEvent::IE_Pressed, this, &ACorporisPlayerController::Pause);
 }
 
 void ACorporisPlayerController::ChangeInputMode(bool bIsGameMode)
@@ -41,6 +28,32 @@ void ACorporisPlayerController::ChangeInputMode(bool bIsGameMode)
         SetInputMode(UIMode);
         bShowMouseCursor = true;
     }
+}
+
+void ACorporisPlayerController::ShowDeathUI()
+{
+    ChangeInputMode(false);
+    
+    DeathWidget->AddToViewport(1);
+}
+
+void ACorporisPlayerController::BeginPlay()
+{
+    Super::BeginPlay();
+    
+    ChangeInputMode(true);
+    
+    HUDWidget = CreateWidget<UCorporisHUDWidget>(this, HUDWidgetClass);
+    HUDWidget->AddToViewport();
+    
+    DeathWidget = CreateWidget<UCorporisDeathWidget>(this, DeathWidgetClass);
+}
+
+void ACorporisPlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+    
+    InputComponent->BindAction(TEXT("Pause"), EInputEvent::IE_Pressed, this, &ACorporisPlayerController::Pause);
 }
 
 void ACorporisPlayerController::Pause()
