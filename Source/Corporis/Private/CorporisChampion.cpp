@@ -71,7 +71,7 @@ void ACorporisChampion::BeginPlay()
     CorporisPlayerController->GetHUDWidget()->BindChampionStat(this);
     CorporisPlayerController->GetDeathWidget()->BindChampionStat(this);
     
-    UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName("weapon"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
+    UGameplayStatics::SpawnEmitterAttached(MuzzleParticleSystem, GetMesh(), FName(TEXT("weapon")), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition, true, EPSCPoolMethod::None, false);
 }
 
 void ACorporisChampion::PostInitializeComponents()
@@ -131,7 +131,7 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
     
     CorporisPlayerController->PlayerCameraManager->PlayCameraShake(CameraShake, 1.0f);
     
-    if (HitResult.BoneName == "head")
+    if (HitResult.BoneName == TEXT("head"))
     {
         ChampionHP = 0;
         OnHPChanged.Broadcast();
@@ -194,7 +194,7 @@ void ACorporisChampion::Attack()
     UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
     MakeNoise(1.0, this, FVector::ZeroVector);
     
-    GetWorld()->GetFirstPlayerController()->PlayerCameraManager->PlayCameraShake(CameraShake, 1.0f);
+    CorporisPlayerController->PlayerCameraManager->PlayCameraShake(CameraShake, 1.0f);
     
     if (bResult && Target)
         UGameplayStatics::ApplyPointDamage(Target, 80.0f, GetActorForwardVector(), HitResult, GetController(), this, nullptr);
